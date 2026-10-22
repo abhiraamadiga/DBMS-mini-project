@@ -43,7 +43,7 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Providers>
             {children}
             <Toaster richColors position="top-right" />
