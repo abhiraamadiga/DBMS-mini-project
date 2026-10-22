@@ -13,11 +13,11 @@ export async function GET(_request: NextRequest) {
     }
 
     const [vehicles] = await pool.query<RowDataPacket[]>(
-      `SELECT v.vehicle_id, v.vehicle_number, v.type, v.capacity_kg, v.status, dv.assigned_at
+      `SELECT v.vehicle_id, v.vehicle_number, v.type, v.status, dv.assigned_on
        FROM driver_vehicle dv
        JOIN vehicle v ON v.vehicle_id = dv.vehicle_id
        WHERE dv.driver_id = ?
-       ORDER BY dv.assigned_at DESC`,
+       ORDER BY dv.assigned_on DESC`,
       [user.driverId]
     );
 

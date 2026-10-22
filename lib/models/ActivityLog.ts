@@ -2,6 +2,11 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IActivityLog extends Document {
   action: string;
+  actor?: {
+    userId?: number;
+    role?: string;
+    name?: string;
+  };
   entity: string;
   entityId?: number | string;
   trackingId?: string;
@@ -15,6 +20,11 @@ const ActivityLogSchema = new Schema<IActivityLog>(
       type: String,
       required: true,
       index: true,
+    },
+    actor: {
+      type: Schema.Types.Mixed,
+      required: false,
+      default: { role: "SYSTEM" },
     },
     entity: {
       type: String,

@@ -9,7 +9,8 @@
     "lint": "next lint",
     "db:migrate": "tsx db/migrate.ts",
     "db:seed": "tsx db/seed/seed.ts",
-    "db:reset": "tsx db/reset.ts"
+    "db:reset": "tsx db/reset.ts",
+    "verify:access": "tsx scripts/verify-access.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",
