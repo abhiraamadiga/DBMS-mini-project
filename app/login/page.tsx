@@ -152,37 +152,37 @@ export default function LoginPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => fillDemo("admin@smartlogistics.local", "Admin@123")}
+                onClick={() => fillDemo("admin@smartlogistics.com", "Admin@123")}
                 className="flex items-center gap-2 p-2 rounded-lg border border-purple-200 bg-purple-50/60 hover:bg-purple-100 text-purple-800 text-xs font-medium transition-all text-left"
               >
                 <div className="w-2 h-2 rounded-full bg-purple-600 shrink-0" />
                 <div className="truncate">
                   <div className="font-semibold">Admin</div>
-                  <div className="text-[10px] text-purple-600 truncate">admin@...</div>
+                  <div className="text-[10px] text-purple-600 truncate">admin@smartlogistics.com</div>
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => fillDemo("vikram.sharma@partner.local", "Partner@123")}
+                onClick={() => fillDemo("rajesh.partner@smartlogistics.com", "Partner@123")}
                 className="flex items-center gap-2 p-2 rounded-lg border border-amber-200 bg-amber-50/60 hover:bg-amber-100 text-amber-800 text-xs font-medium transition-all text-left"
               >
                 <div className="w-2 h-2 rounded-full bg-amber-600 shrink-0" />
                 <div className="truncate">
                   <div className="font-semibold">Partner</div>
-                  <div className="text-[10px] text-amber-600 truncate">vikram@...</div>
+                  <div className="text-[10px] text-amber-600 truncate">rajesh@...</div>
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => fillDemo("aarav.sharma@example.com", "Customer@123")}
+                onClick={() => fillDemo("aditi.sharma@example.com", "Customer@123")}
                 className="flex items-center gap-2 p-2 rounded-lg border border-sky-200 bg-sky-50/60 hover:bg-sky-100 text-sky-800 text-xs font-medium transition-all text-left"
               >
                 <div className="w-2 h-2 rounded-full bg-sky-600 shrink-0" />
                 <div className="truncate">
                   <div className="font-semibold">Customer</div>
-                  <div className="text-[10px] text-sky-600 truncate">aarav@...</div>
+                  <div className="text-[10px] text-sky-600 truncate">aditi@...</div>
                 </div>
               </button>
             </div>
