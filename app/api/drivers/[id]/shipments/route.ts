@@ -1,0 +1,30 @@
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse, handleApiError } from "@/lib/api";
+import { getDriverById, getDriverShipments } from "@/lib/queries/driverQueries";
+import { requireAuth } from "@/lib/auth/guards";
+
+// Q2: Find all shipments assigned to a particular driver
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAuth(["ADMIN"]);
+
+    const { id } = await params;
+    const driverId = parseInt(id, 10);
+    if (isNaN(driverId)) {
+      return errorResponse("INVALID_ID", "Driver ID must be a number", [], 400);
+    }
+
+    const driver = await getDriverById(driverId);
+    if (!driver) {
+      return errorResponse("NOT_FOUND", "Driver not found", [], 404);
+    }
+
+    const shipments = await getDriverShipments(driverId);
+    return successResponse(shipments, { driver, total: shipments.length });
+  } catch (err) {
+    return handleApiError(err);
+  }
+}
