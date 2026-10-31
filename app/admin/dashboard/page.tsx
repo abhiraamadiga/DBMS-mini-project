@@ -33,7 +33,8 @@ export default function DashboardPage() {
     queryFn: async () => {
       const res = await fetch("/api/dashboard/stats");
       const json = await res.json();
-      return json.data;
+      if (!res.ok) throw new Error(json.error?.message || "Failed to fetch dashboard stats");
+      return json.data ?? null;
     },
   });
 
@@ -42,7 +43,8 @@ export default function DashboardPage() {
     queryFn: async () => {
       const res = await fetch("/api/shipments?limit=5");
       const json = await res.json();
-      return json.data;
+      if (!res.ok) throw new Error(json.error?.message || "Failed to fetch dashboard stats");
+      return json.data ?? null;
     },
   });
 

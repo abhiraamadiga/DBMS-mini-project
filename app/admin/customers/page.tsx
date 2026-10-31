@@ -63,7 +63,8 @@ export default function CustomersPage() {
       if (q) params.set("q", q);
       const res = await fetch(`/api/customers?${params}`);
       const json = await res.json();
-      return json.data;
+      if (!res.ok) throw new Error(json.error?.message || "Failed to fetch customers");
+      return json.data ?? [];
     },
   });
 

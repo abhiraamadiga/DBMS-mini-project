@@ -50,7 +50,7 @@ export default function WarehousesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["warehouses"],
-    queryFn: async () => { const r = await fetch("/api/warehouses"); const j = await r.json(); return j.data; },
+    queryFn: async () => { const r = await fetch("/api/warehouses"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; },
   });
 
   const deleteMutation = useMutation({

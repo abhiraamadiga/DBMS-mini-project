@@ -35,7 +35,7 @@ export default function PartnerDeliveryDetailPage() {
       const res = await fetch(`/api/shipments/${shipmentId}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error?.message || "Delivery not found");
-      return json.data;
+      return json.data ?? null;
     },
   });
 
@@ -48,7 +48,7 @@ export default function PartnerDeliveryDetailPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error?.message || "Failed to update milestone status");
-      return json.data;
+      return json.data ?? null;
     },
     onSuccess: () => {
       toast.success("Delivery milestone updated successfully!");

@@ -21,7 +21,8 @@ export default function PartnerDashboardPage() {
     queryFn: async () => {
       const res = await fetch("/api/me/dashboard");
       const json = await res.json();
-      return json.data;
+      if (!res.ok) throw new Error(json.error?.message || "Failed to load data");
+      return json.data ?? null;
     },
   });
 

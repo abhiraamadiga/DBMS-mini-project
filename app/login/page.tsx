@@ -27,6 +27,22 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [demoAllSuccess, setDemoAllSuccess] = useState(false);
+  const [demoAllLoading, setDemoAllLoading] = useState(false);
+
+  const handleDemoAll = async () => {
+    setDemoAllLoading(true);
+    try {
+      const res = await fetch("/api/auth/demo-session-all", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to initialize demo sessions");
+      setDemoAllSuccess(true);
+      toast.success("All 3 demo accounts authenticated! Open each portal below.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to initialize demo accounts");
+    } finally {
+      setDemoAllLoading(false);
+    }
+  };
 
   const fillDemo = (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);

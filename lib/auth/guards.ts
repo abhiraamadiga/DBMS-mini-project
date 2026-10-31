@@ -1,6 +1,7 @@
 import { getSession, SessionUser, Role } from "./session";
 import { pool } from "@/lib/db/mysql";
 import { RowDataPacket } from "mysql2";
+import { headers } from "next/headers";
 
 export class AuthError extends Error {
   code: string;
@@ -25,7 +26,35 @@ interface AppUserDbRow extends RowDataPacket {
 }
 
 export async function requireAuth(allowedRoles?: Role[]): Promise<SessionUser> {
-  const session = await getSession();
+  let preferredRole: Role | undefined;
+
+  try {
+    const headersList = await headers();
+    const referer = headersList.get("referer") || "";
+    if (allowedRoles && allowedRoles.length === 1) {
+      preferredRole = allowedRoles[0];
+    } else if (referer.includes("/admin")) {
+      preferredRole = "ADMIN";
+    } else if (referer.includes("/partner")) {
+      preferredRole = "DELIVERY_PARTNER";
+    } else if (referer.includes("/customer")) {
+      preferredRole = "CUSTOMER";
+    }
+  } catch {}
+
+  let session = await getSession(preferredRole);
+
+  // If session doesn't match allowedRoles, check other role cookies
+  if ((!session || (allowedRoles && !allowedRoles.includes(session.role))) && allowedRoles) {
+    for (const role of allowedRoles) {
+      const candidate = await getSession(role);
+      if (candidate && candidate.role === role) {
+        session = candidate;
+        break;
+      }
+    }
+  }
+
   if (!session) {
     throw new AuthError(401, "UNAUTHENTICATED", "Authentication required");
   }
@@ -60,12 +89,24 @@ export async function requireAuth(allowedRoles?: Role[]): Promise<SessionUser> {
   };
 }
 
-export function shipmentScope(session: SessionUser): { customerId?: number; driverId?: number } {
-  if (session.role === "CUSTOMER" && session.customerId) {
-    return { customerId: session.customerId };
+export function shipmentScope(user: SessionUser): {
+  customer_id?: number;
+  driver_id?: number;
+} {
+  if (user.role === "ADMIN") {
+    return {};
   }
-  if (session.role === "DELIVERY_PARTNER" && session.driverId) {
-    return { driverId: session.driverId };
+  if (user.role === "CUSTOMER") {
+    if (!user.customerId) {
+      throw new AuthError(403, "NO_LINKED_CUSTOMER", "No customer linked to this account");
+    }
+    return { customer_id: user.customerId };
+  }
+  if (user.role === "DELIVERY_PARTNER") {
+    if (!user.driverId) {
+      throw new AuthError(403, "NO_LINKED_DRIVER", "No driver linked to this account");
+    }
+    return { driver_id: user.driverId };
   }
   return {};
 }

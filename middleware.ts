@@ -28,21 +28,20 @@ async function verifyToken(token: string): Promise<JwtPayload | null> {
 
 export async function middleware(request: any) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = token ? await verifyToken(token) : null;
 
-  const roleHome: Record<string, string> = {
-    ADMIN: "/admin/dashboard",
-    DELIVERY_PARTNER: "/partner/dashboard",
-    CUSTOMER: "/customer/dashboard",
-  };
+  // Read role-specific cookies and generic session cookie
+  const adminToken = request.cookies.get("slm_session_admin")?.value;
+  const partnerToken = request.cookies.get("slm_session_partner")?.value;
+  const customerToken = request.cookies.get("slm_session_customer")?.value;
+  const mainToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
-  // 1. Auth pages (/login, /register)
+  const adminSession = adminToken ? await verifyToken(adminToken) : null;
+  const partnerSession = partnerToken ? await verifyToken(partnerToken) : null;
+  const customerSession = customerToken ? await verifyToken(customerToken) : null;
+  const mainSession = mainToken ? await verifyToken(mainToken) : null;
+
+  // 1. Auth pages (/login, /register) - allow visiting anytime to switch roles
   if (pathname === "/login" || pathname === "/register") {
-    if (session) {
-      const redirectUrl = new URL(roleHome[session.role] || "/dashboard", request.url);
-      return NextResponse.redirect(redirectUrl);
-    }
     return NextResponse.next();
   }
 
@@ -51,23 +50,31 @@ export async function middleware(request: any) {
   const isPartnerPath = pathname.startsWith("/partner");
   const isCustomerPath = pathname.startsWith("/customer");
 
-  if (isAdminPath || isPartnerPath || isCustomerPath) {
-    if (!session) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("next", pathname);
-      return NextResponse.redirect(loginUrl);
+  if (isAdminPath) {
+    if (adminSession?.role === "ADMIN" || mainSession?.role === "ADMIN") {
+      return NextResponse.next();
     }
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-    // Role boundary checks
-    if (isAdminPath && session.role !== "ADMIN") {
-      return NextResponse.redirect(new URL(roleHome[session.role], request.url));
+  if (isPartnerPath) {
+    if (partnerSession?.role === "DELIVERY_PARTNER" || mainSession?.role === "DELIVERY_PARTNER") {
+      return NextResponse.next();
     }
-    if (isPartnerPath && session.role !== "DELIVERY_PARTNER") {
-      return NextResponse.redirect(new URL(roleHome[session.role], request.url));
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (isCustomerPath) {
+    if (customerSession?.role === "CUSTOMER" || mainSession?.role === "CUSTOMER") {
+      return NextResponse.next();
     }
-    if (isCustomerPath && session.role !== "CUSTOMER") {
-      return NextResponse.redirect(new URL(roleHome[session.role], request.url));
-    }
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();

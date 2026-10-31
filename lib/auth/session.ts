@@ -20,6 +20,12 @@ const getSecretKey = () => {
 export const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || "slm_session";
 const SESSION_DAYS = parseInt(process.env.SESSION_DAYS || "7", 10);
 
+export function getRoleCookieName(role: Role): string {
+  if (role === "ADMIN") return "slm_session_admin";
+  if (role === "DELIVERY_PARTNER") return "slm_session_partner";
+  return "slm_session_customer";
+}
+
 export async function signToken(payload: SessionUser): Promise<string> {
   return new SignJWT({
     role: payload.role,
@@ -54,24 +60,44 @@ export async function verifyToken(token: string): Promise<SessionUser | null> {
 export async function createSessionCookie(user: SessionUser): Promise<string> {
   const token = await signToken(user);
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, token, {
+  const cookieOpts = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "lax" as const,
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,
-  });
+  };
+
+  cookieStore.set(SESSION_COOKIE_NAME, token, cookieOpts);
+  cookieStore.set(getRoleCookieName(user.role), token, cookieOpts);
+
   return token;
 }
 
-export async function getSession(): Promise<SessionUser | null> {
+export async function getSession(preferredRole?: Role): Promise<SessionUser | null> {
   const cookieStore = await cookies();
+
+  if (preferredRole) {
+    const roleCookie = cookieStore.get(getRoleCookieName(preferredRole));
+    if (roleCookie?.value) {
+      const parsed = await verifyToken(roleCookie.value);
+      if (parsed && parsed.role === preferredRole) return parsed;
+    }
+  }
+
   const cookie = cookieStore.get(SESSION_COOKIE_NAME);
   if (!cookie?.value) return null;
   return verifyToken(cookie.value);
 }
 
-export async function clearSessionCookie(): Promise<void> {
+export async function clearSessionCookie(role?: Role): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE_NAME);
+  if (role) {
+    cookieStore.delete(getRoleCookieName(role));
+  } else {
+    cookieStore.delete(SESSION_COOKIE_NAME);
+    cookieStore.delete("slm_session_admin");
+    cookieStore.delete("slm_session_partner");
+    cookieStore.delete("slm_session_customer");
+  }
 }

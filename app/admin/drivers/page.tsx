@@ -61,7 +61,7 @@ function DriverDialog({ driver, vehicles, onClose }: { driver?: any; vehicles: a
 function DriverShipmentsDrawer({ driverId, driverName, onClose }: { driverId: number; driverName: string; onClose: () => void }) {
   const { data } = useQuery({
     queryKey: ["driver-shipments", driverId],
-    queryFn: async () => { const r = await fetch(`/api/drivers/${driverId}/shipments`); const j = await r.json(); return j.data; },
+    queryFn: async () => { const r = await fetch(`/api/drivers/${driverId}/shipments`); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; },
   });
 
   return (
@@ -96,8 +96,8 @@ export default function DriversPage() {
   const [dialog, setDialog] = useState<null | "new" | any>(null);
   const [drawer, setDrawer] = useState<null | any>(null);
 
-  const { data, isLoading } = useQuery({ queryKey: ["drivers"], queryFn: async () => { const r = await fetch("/api/drivers"); const j = await r.json(); return j.data; } });
-  const { data: vehicles } = useQuery({ queryKey: ["vehicles-all"], queryFn: async () => { const r = await fetch("/api/vehicles"); const j = await r.json(); return j.data; } });
+  const { data, isLoading } = useQuery({ queryKey: ["drivers"], queryFn: async () => { const r = await fetch("/api/drivers"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; } });
+  const { data: vehicles } = useQuery({ queryKey: ["vehicles-all"], queryFn: async () => { const r = await fetch("/api/vehicles"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; } });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => { const r = await fetch(`/api/drivers/${id}`, { method: "DELETE" }); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed"); return j; },

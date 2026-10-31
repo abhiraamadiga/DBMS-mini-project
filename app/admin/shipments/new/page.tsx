@@ -39,33 +39,25 @@ export default function NewShipmentPage() {
   const { data: customers } = useQuery({
     queryKey: ["customers-all"],
     queryFn: async () => {
-      const r = await fetch("/api/customers?limit=100");
-      const j = await r.json();
-      return j.data;
+      const r = await fetch("/api/customers?limit=100"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? [];
     },
   });
   const { data: routes } = useQuery({
     queryKey: ["routes-all"],
     queryFn: async () => {
-      const r = await fetch("/api/routes");
-      const j = await r.json();
-      return j.data;
+      const r = await fetch("/api/routes"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? [];
     },
   });
   const { data: vehicles } = useQuery({
     queryKey: ["vehicles-all"],
     queryFn: async () => {
-      const r = await fetch("/api/vehicles");
-      const j = await r.json();
-      return j.data;
+      const r = await fetch("/api/vehicles"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? [];
     },
   });
   const { data: drivers } = useQuery({
     queryKey: ["drivers-all"],
     queryFn: async () => {
-      const r = await fetch("/api/drivers");
-      const j = await r.json();
-      return j.data;
+      const r = await fetch("/api/drivers"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? [];
     },
   });
 

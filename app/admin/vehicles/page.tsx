@@ -57,7 +57,7 @@ function VehicleDialog({ vehicle, onClose }: { vehicle?: any; onClose: () => voi
 function VehicleShipmentsDrawer({ vehicleId, vehicleNumber, onClose }: { vehicleId: number; vehicleNumber: string; onClose: () => void }) {
   const { data } = useQuery({
     queryKey: ["vehicle-shipments", vehicleId],
-    queryFn: async () => { const r = await fetch(`/api/vehicles/${vehicleId}/shipments`); const j = await r.json(); return j.data; },
+    queryFn: async () => { const r = await fetch(`/api/vehicles/${vehicleId}/shipments`); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; },
   });
 
   return (
@@ -96,7 +96,7 @@ export default function VehiclesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["vehicles"],
-    queryFn: async () => { const r = await fetch("/api/vehicles"); const j = await r.json(); return j.data; },
+    queryFn: async () => { const r = await fetch("/api/vehicles"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; },
   });
 
   const deleteMutation = useMutation({

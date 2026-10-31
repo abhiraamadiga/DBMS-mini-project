@@ -13,12 +13,12 @@ export default function CustomerDetailPage() {
 
   const { data: customer, isLoading: custLoading } = useQuery({
     queryKey: ["customer", params.id],
-    queryFn: async () => { const r = await fetch(`/api/customers/${params.id}`); const j = await r.json(); return j.data; },
+    queryFn: async () => { const r = await fetch(`/api/customers/${params.id}`); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; },
   });
 
   const { data: shipments, isLoading: shipsLoading } = useQuery({
     queryKey: ["customer-shipments", params.id],
-    queryFn: async () => { const r = await fetch(`/api/customers/${params.id}/shipments`); const j = await r.json(); return j.data; },
+    queryFn: async () => { const r = await fetch(`/api/customers/${params.id}/shipments`); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; },
   });
 
   if (custLoading) return <div className="h-32 rounded-2xl bg-[var(--secondary)] animate-pulse" />;

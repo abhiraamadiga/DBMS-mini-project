@@ -33,7 +33,7 @@ export default function CustomerShipmentDetailPage() {
       const res = await fetch(`/api/shipments/${shipmentId}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error?.message || "Shipment not found");
-      return json.data;
+      return json.data ?? null;
     },
   });
 

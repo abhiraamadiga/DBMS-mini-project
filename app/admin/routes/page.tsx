@@ -71,7 +71,7 @@ function RouteDialog({ route, warehouses, onClose }: { route?: any; warehouses: 
 function RouteShipmentsDrawer({ routeId, routeName, onClose }: { routeId: number; routeName: string; onClose: () => void }) {
   const { data } = useQuery({
     queryKey: ["route-shipments", routeId],
-    queryFn: async () => { const r = await fetch(`/api/routes/${routeId}/shipments`); const j = await r.json(); return j.data; },
+    queryFn: async () => { const r = await fetch(`/api/routes/${routeId}/shipments`); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; },
   });
 
   return (
@@ -105,8 +105,8 @@ export default function RoutesPage() {
   const [dialog, setDialog] = useState<null | "new" | any>(null);
   const [drawer, setDrawer] = useState<null | any>(null);
 
-  const { data, isLoading } = useQuery({ queryKey: ["routes"], queryFn: async () => { const r = await fetch("/api/routes"); const j = await r.json(); return j.data; } });
-  const { data: warehouses } = useQuery({ queryKey: ["warehouses-all"], queryFn: async () => { const r = await fetch("/api/warehouses"); const j = await r.json(); return j.data; } });
+  const { data, isLoading } = useQuery({ queryKey: ["routes"], queryFn: async () => { const r = await fetch("/api/routes"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; } });
+  const { data: warehouses } = useQuery({ queryKey: ["warehouses-all"], queryFn: async () => { const r = await fetch("/api/warehouses"); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed to load data"); return j.data ?? []; } });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => { const r = await fetch(`/api/routes/${id}`, { method: "DELETE" }); const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || "Failed"); return j; },

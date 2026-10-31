@@ -40,7 +40,8 @@ export default function ShipmentDetailPage() {
     queryFn: async () => {
       const res = await fetch(`/api/shipments/${shipmentId}`);
       const json = await res.json();
-      return json.data;
+      if (!res.ok) throw new Error(json.error?.message || "Failed to load data");
+      return json.data ?? null;
     },
   });
 
@@ -49,7 +50,8 @@ export default function ShipmentDetailPage() {
     queryFn: async () => {
       const res = await fetch("/api/vehicles");
       const j = await res.json();
-      return j.data;
+      if (!res.ok) throw new Error(j.error?.message || "Failed to load data");
+      return j.data ?? [];
     },
   });
 
@@ -58,7 +60,8 @@ export default function ShipmentDetailPage() {
     queryFn: async () => {
       const res = await fetch("/api/drivers");
       const j = await res.json();
-      return j.data;
+      if (!res.ok) throw new Error(j.error?.message || "Failed to load data");
+      return j.data ?? [];
     },
   });
 
