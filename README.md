@@ -340,3 +340,6 @@ This automated test asserts:
 - Customer queries return only owned shipments; foreign shipments return `404`.
 - Delivery partner queries return only assigned shipments; unauthorized actions return `403`/`404`.
 - Admin has full access across all modules, user administration, and audit logs.
+
+
+DBMS MINI PROJECT
