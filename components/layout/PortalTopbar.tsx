@@ -36,7 +36,7 @@ export function PortalTopbar({ title, onOpenSidebar }: PortalTopbarProps) {
     fetch("/api/auth/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
-        if (json?.data) setUser(json.data);
+        if (json?.data) setUser(json.data.user || json.data);
       })
       .catch(() => {});
   }, []);

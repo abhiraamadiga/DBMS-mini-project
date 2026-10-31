@@ -24,8 +24,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = loginSchema.parse(body);
 
+    const normalizedEmail = email.toLowerCase().trim();
     const clientIp = request.headers.get("x-forwarded-for") || "local";
-    const rateLimitKey = `${email.toLowerCase()}_${clientIp}`;
+    const rateLimitKey = `${normalizedEmail}_${clientIp}`;
 
     const rateStatus = checkRateLimit(rateLimitKey);
     if (!rateStatus.allowed) {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
        LEFT JOIN customer c ON c.customer_id = u.customer_id
        LEFT JOIN driver d ON d.driver_id = u.driver_id
        WHERE u.email = ?`,
-      [email.toLowerCase().trim()]
+      [normalizedEmail]
     );
 
     const user = rows[0];

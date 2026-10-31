@@ -54,12 +54,16 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error?.message || "Invalid email or password");
+        const detailsMsg = data?.error?.details?.map((d: any) => d.message).join(", ");
+        throw new Error(detailsMsg || data?.error?.message || "Invalid email or password");
       }
 
-      toast.success(`Welcome back, ${data.data.name}!`);
+      const user = data.data?.user || data.data;
+      const role = user?.role;
+      const name = user?.name || "User";
 
-      const role = data.data.role;
+      toast.success(`Welcome back, ${name}!`);
+
       if (nextUrl) {
         if (
           (role === "ADMIN" && nextUrl.startsWith("/admin")) ||
@@ -67,6 +71,7 @@ export default function LoginPage() {
           (role === "CUSTOMER" && nextUrl.startsWith("/customer"))
         ) {
           router.push(nextUrl);
+          router.refresh();
           return;
         }
       }
@@ -78,6 +83,7 @@ export default function LoginPage() {
       } else {
         router.push("/customer/dashboard");
       }
+      router.refresh();
     } catch (err: any) {
       setError(err.message || "Failed to sign in. Please verify your credentials.");
       toast.error(err.message || "Sign in failed");

@@ -14,10 +14,15 @@ export async function POST(request: NextRequest) {
 
     const email = data.email.toLowerCase().trim();
 
-    // Check duplicate email
-    const [existing] = await connection.query("SELECT user_id FROM app_user WHERE email = ?", [email]);
-    if ((existing as any[]).length > 0) {
-      return errorResponse("DUPLICATE_ENTRY", "An account with this email already exists", [], 409);
+    // Check duplicate email in both app_user and customer tables
+    const [existingUsers] = await connection.query("SELECT user_id FROM app_user WHERE email = ?", [email]);
+    if ((existingUsers as any[]).length > 0) {
+      return errorResponse("DUPLICATE_ENTRY", "An account with this email already exists. Please sign in.", [], 409);
+    }
+
+    const [existingCusts] = await connection.query("SELECT customer_id FROM customer WHERE email = ?", [email]);
+    if ((existingCusts as any[]).length > 0) {
+      return errorResponse("DUPLICATE_ENTRY", "A customer with this email already exists. Please sign in or use another email.", [], 409);
     }
 
     const passwordHash = await hashPassword(data.password);
@@ -63,7 +68,9 @@ export async function POST(request: NextRequest) {
 
     return successResponse({ user: sessionData }, undefined, 201);
   } catch (err) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch {}
     return handleApiError(err);
   } finally {
     connection.release();

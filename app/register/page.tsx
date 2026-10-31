@@ -32,6 +32,21 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
+    if (name.trim().length < 2) {
+      setError("Full name must be at least 2 characters");
+      return;
+    }
+
+    if (phone.trim().length < 7) {
+      setError("Please enter a valid phone number (at least 7 digits)");
+      return;
+    }
+
+    if (address.trim().length < 5) {
+      setError("Address must be at least 5 characters");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -39,6 +54,11 @@ export default function RegisterPage() {
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters");
+      return;
+    }
+
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError("Password must contain at least one letter and one number");
       return;
     }
 
@@ -60,11 +80,13 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error?.message || "Registration failed. Try again.");
+        const detailsMsg = data?.error?.details?.map((d: any) => d.message).join(", ");
+        throw new Error(detailsMsg || data?.error?.message || "Registration failed. Try again.");
       }
 
       toast.success("Account created successfully! Welcome to SmartLogistics.");
       router.push("/customer/dashboard");
+      router.refresh();
     } catch (err: any) {
       setError(err.message || "Failed to create account");
       toast.error(err.message || "Registration failed");

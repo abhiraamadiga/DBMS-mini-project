@@ -43,7 +43,7 @@ export default function AdminUsersPage() {
     queryFn: async () => {
       const res = await fetch("/api/auth/me");
       const j = await res.json();
-      return j.data;
+      return j.data?.user || j.data;
     },
   });
 
